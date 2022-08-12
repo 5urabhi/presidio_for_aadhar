@@ -8,13 +8,13 @@ class AadharCardRecognizer(PatternRecognizer):
     PATTERNS = [
         Pattern(
             "Aadhar Card (weak)",
-            r"[0-9]{4}[\s-]?[0-9]{4}[\s-]?[0-9]{4}",
+            r"[0-9]{4}[-]?[0-9]{4}[-]?[0-9]{4}",
             0.2,
         ),
-      Pattern(
-        "Aadhar Card (Medium)",
-        r"[2-9]{1}[0-9]{3}\\s[0-9]{4}\\s[0-9]{4}",
-        0.5,
+        Pattern(
+            "Aadhar Card (Medium)",
+            r"[0-9]{4}\s[0-9]{4}\s[0-9]{4}",
+            0.5,
         ),
     ]
 
