@@ -91,7 +91,7 @@ class RecognizerRegistry:
                 MedicalLicenseRecognizer,
                 nlp_recognizer,
                 PhoneRecognizer,
-                UrlRecognizer,
+                UrlRecognizer
             ],
         }
         for lang in languages:

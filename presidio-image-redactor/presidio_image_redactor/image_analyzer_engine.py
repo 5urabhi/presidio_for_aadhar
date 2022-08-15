@@ -2,10 +2,8 @@ from typing import List
 
 from presidio_analyzer import AnalyzerEngine, RecognizerResult
 
-from ocr import OCR
-from tesseract_ocr import TesseractOCR
-
-from entities import ImageRecognizerResult
+from presidio_image_redactor import OCR, TesseractOCR
+from presidio_image_redactor.entities import ImageRecognizerResult
 
 
 class ImageAnalyzerEngine:
@@ -16,9 +14,9 @@ class ImageAnalyzerEngine:
     :param ocr: the OCR object to be used to detect text in images.
     """
 
-    def __init__(self, analyzer_engine: presidio_analyzer.AnalyzerEngine = None, ocr: OCR = None):
+    def __init__(self, analyzer_engine: AnalyzerEngine = None, ocr: OCR = None):
         if not analyzer_engine:
-            analyzer_engine = presidio_analyzer.AnalyzerEngine()
+            analyzer_engine = AnalyzerEngine()
         self.analyzer_engine = analyzer_engine
 
         if not ocr:
