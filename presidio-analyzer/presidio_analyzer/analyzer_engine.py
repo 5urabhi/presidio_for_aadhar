@@ -1,18 +1,21 @@
 import json
 import logging
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from presidio_analyzer import (
     RecognizerRegistry,
     RecognizerResult,
     EntityRecognizer,
 )
+import csv
 from presidio_analyzer.app_tracer import AppTracer
 from presidio_analyzer.context_aware_enhancers import (
     ContextAwareEnhancer,
     LemmaContextAwareEnhancer,
 )
 from presidio_analyzer.nlp_engine import NlpEngine, NlpEngineProvider, NlpArtifacts
+global_recognizer=[]
+
 
 logger = logging.getLogger("presidio-analyzer")
 
@@ -39,6 +42,7 @@ class AnalyzerEngine:
     by default if None passed)
     """
 
+
     def __init__(
         self,
         registry: RecognizerRegistry = None,
@@ -49,6 +53,7 @@ class AnalyzerEngine:
         supported_languages: List[str] = None,
         context_aware_enhancer: Optional[ContextAwareEnhancer] = None,
     ):
+
         if not supported_languages:
             supported_languages = ["en"]
 
@@ -86,6 +91,20 @@ class AnalyzerEngine:
             context_aware_enhancer = LemmaContextAwareEnhancer()
 
         self.context_aware_enhancer = context_aware_enhancer
+
+    def add_recognizer(self, recognizer: EntityRecognizer):
+        global_recognizer.append(recognizer)
+        """
+        file = open('new_recognizers.csv', 'a+', newline='')
+
+        # writing the data into the file
+        with file:
+            write = csv.writer(file)
+            write.writerows(global_recognizer)
+            """
+        print(global_recognizer)
+
+
 
     def get_recognizers(self, language: Optional[str] = None) -> List[EntityRecognizer]:
         """
@@ -130,7 +149,7 @@ class AnalyzerEngine:
         correlation_id: Optional[str] = None,
         score_threshold: Optional[float] = None,
         return_decision_process: Optional[bool] = False,
-        ad_hoc_recognizers: Optional[List[EntityRecognizer]] = None,
+        ad_hoc_recognizers: Optional[List[EntityRecognizer]] = global_recognizer,
         context: Optional[List[str]] = None,
         allow_list: Optional[List[str]] = None,
         nlp_artifacts: Optional[NlpArtifacts] = None,
@@ -231,6 +250,8 @@ class AnalyzerEngine:
             results = self.__remove_decision_process(results)
 
         return results
+
+
 
     def _enhance_using_context(
         self,

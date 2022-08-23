@@ -1,0 +1,3 @@
+from presidio_anonymizer.entities import RecognizerResult
+analyzer_result= List[RecognizerResult]
+print(analyzer_result)
