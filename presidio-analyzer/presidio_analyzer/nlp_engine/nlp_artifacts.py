@@ -9,7 +9,7 @@ class NlpArtifacts:
     NlpArtifacts is an abstraction layer over the results of an NLP pipeline.
 
     processing over a given text, it holds attributes such as entities,
-    tokens and lemmas which can be used by any recognizer
+    tokens and lemmas which can be use by any recognizer
     """
 
     def __init__(

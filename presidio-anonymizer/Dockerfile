@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.9-slim
 
 ARG NAME
 ENV PIPENV_VENV_IN_PROJECT=1

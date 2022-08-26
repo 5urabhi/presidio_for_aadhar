@@ -14,4 +14,5 @@ class TesseractOCR(OCR):
         :return: results dictionary containing bboxes and text for each detected word
         """
         output_type = pytesseract.Output.DICT
+        print(output_type)
         return pytesseract.image_to_data(image, output_type=output_type)

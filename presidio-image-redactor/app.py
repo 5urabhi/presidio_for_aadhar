@@ -48,6 +48,8 @@ class Server:
             params = get_json_data(request.form.get("data"))
             color_fill = color_fill_string_to_value(params)
             image_file = request.files.get("image")
+
+            print(image_file.show())
             if not image_file:
                 raise InvalidParamException("Invalid parameter, please add image data")
             im = Image.open(image_file)
@@ -55,6 +57,7 @@ class Server:
             redacted_image = self.engine.redact(im, color_fill)
 
             img_byte_arr = image_to_byte_array(redacted_image, im.format)
+            print("yes")
             return Response(img_byte_arr, mimetype="application/octet-stream")
 
         @self.app.errorhandler(InvalidParamException)

@@ -7,14 +7,18 @@ from presidio_analyzer import (
     RecognizerResult,
     EntityRecognizer,
 )
-import csv
+
 from presidio_analyzer.app_tracer import AppTracer
 from presidio_analyzer.context_aware_enhancers import (
     ContextAwareEnhancer,
     LemmaContextAwareEnhancer,
 )
 from presidio_analyzer.nlp_engine import NlpEngine, NlpEngineProvider, NlpArtifacts
-global_recognizer=[]
+
+from pymongo import MongoClient
+client = MongoClient('localhost', 27017)
+db = client['testDatabase']  # or db = client.test_database
+collection = db['testCollection']
 
 
 logger = logging.getLogger("presidio-analyzer")
@@ -71,6 +75,8 @@ class AnalyzerEngine:
 
         self.supported_languages = supported_languages
 
+        self.ad_hoc_recognizer=[]
+
         self.nlp_engine = nlp_engine
         self.registry = registry
 
@@ -91,19 +97,8 @@ class AnalyzerEngine:
             context_aware_enhancer = LemmaContextAwareEnhancer()
 
         self.context_aware_enhancer = context_aware_enhancer
-
-    def add_recognizer(self, recognizer: EntityRecognizer):
-        global_recognizer.append(recognizer)
-        """
-        file = open('new_recognizers.csv', 'a+', newline='')
-
-        # writing the data into the file
-        with file:
-            write = csv.writer(file)
-            write.writerows(global_recognizer)
-            """
-        print(global_recognizer)
-
+    def add_recognizer(self,recognizer:EntityRecognizer):
+        self.ad_hoc_recognizer.append(recognizer)
 
 
     def get_recognizers(self, language: Optional[str] = None) -> List[EntityRecognizer]:
@@ -149,7 +144,7 @@ class AnalyzerEngine:
         correlation_id: Optional[str] = None,
         score_threshold: Optional[float] = None,
         return_decision_process: Optional[bool] = False,
-        ad_hoc_recognizers: Optional[List[EntityRecognizer]] = global_recognizer,
+        ad_hoc_recognizers: Optional[List[EntityRecognizer]] = None,
         context: Optional[List[str]] = None,
         allow_list: Optional[List[str]] = None,
         nlp_artifacts: Optional[NlpArtifacts] = None,
@@ -190,11 +185,17 @@ class AnalyzerEngine:
         """
         all_fields = not entities
 
-        recognizers = self.registry.get_recognizers(
+        temp = self.ad_hoc_recognizer.copy()
+        print("self: ",self.ad_hoc_recognizer)
+        print("function: ",ad_hoc_recognizers)
+        if ad_hoc_recognizers is not None:
+            temp.extend(ad_hoc_recognizers)
+
+            recognizers = self.registry.get_recognizers(
             language=language,
             entities=entities,
             all_fields=all_fields,
-            ad_hoc_recognizers=ad_hoc_recognizers,
+            ad_hoc_recognizers=temp,
         )
 
         if all_fields:

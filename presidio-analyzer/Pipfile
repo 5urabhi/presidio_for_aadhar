@@ -18,3 +18,4 @@ flake8= {version = ">=3.7.9"}
 pep8-naming = "*"
 flake8-docstrings = "*"
 pre_commit = "*"
+pymongo="*"

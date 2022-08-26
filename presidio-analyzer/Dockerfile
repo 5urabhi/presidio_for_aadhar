@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.9-slim
 
 ARG NAME
 ARG NLP_CONF_FILE=conf/default.yaml
@@ -12,8 +12,8 @@ RUN pip install pipenv \
 # install nlp models specified in conf/default.yaml
 COPY ./install_nlp_models.py /usr/bin/${NAME}/
 COPY ${NLP_CONF_FILE} /usr/bin/${NAME}/${NLP_CONF_FILE}
-RUN pipenv install packaging
 RUN pipenv run python install_nlp_models.py --conf_file ${NLP_CONF_FILE}
+RUN pipenv install pymongo
 
 COPY . /usr/bin/${NAME}/
 EXPOSE ${PORT}

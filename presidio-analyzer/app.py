@@ -5,17 +5,19 @@ import os
 from logging.config import fileConfig
 from pathlib import Path
 from typing import Tuple
-import csv
 
 from flask import Flask, request, jsonify, Response
 from werkzeug.exceptions import HTTPException
 
-from presidio_analyzer import Pattern
+
 from presidio_analyzer.analyzer_engine import AnalyzerEngine
 from presidio_analyzer import PatternRecognizer
 from presidio_analyzer.analyzer_request import AnalyzerRequest
-
 DEFAULT_PORT = "3000"
+from pymongo import MongoClient
+client = MongoClient('localhost', 27017)
+db = client['testDatabase']  # or db = client.test_database
+collection = db['testCollection']
 
 LOGGING_CONF_FILE = "logging.ini"
 
@@ -48,10 +50,27 @@ class Server:
             """Return basic health probe result."""
             return "Presidio Analyzer service is up"
 
+        @self.app.route("/register", methods=["POST"])
+        def register() -> str:
+            req=request.get_json()
+            collection.insert_one(req)
+            collection.close()
+
+            return "Added recognizer successfully"
+
         @self.app.route("/analyze", methods=["POST"])
         def analyze() -> Tuple[str, int]:
             """Execute the analyzer function."""
             # Parse the request params
+
+            todos = db.testCollection.find()
+            for record in todos:
+                print(type(record))
+                del record['_id']
+                print(record)
+                analyzer = PatternRecognizer.from_dict(record)
+                self.engine.add_recognizer(analyzer)
+
             try:
                 req_data = AnalyzerRequest(request.get_json())
                 if not req_data.text:
@@ -67,7 +86,7 @@ class Server:
                     score_threshold=req_data.score_threshold,
                     entities=req_data.entities,
                     return_decision_process=req_data.return_decision_process,
-                    #ad_hoc_recognizers=req_data.ad_hoc_recognizers,
+                    ad_hoc_recognizers=req_data.ad_hoc_recognizers,
                     context=req_data.context,
                 )
 
@@ -94,18 +113,7 @@ class Server:
                 )
                 return jsonify(error=e.args[0]), 500
 
-        @self.app.route("/register", methods=["POST"])
-        def register() -> str:
-            req_data = PatternRecognizer.from_dict(request.get_json())
-            self.engine.add_recognizer(req_data)
-            print(PatternRecognizer.to_dict(request.get_json()))
-            """
-            #print(request.get_json())
-            json_object = json.dumps(request.get_json())
-            with open("sample.json", "w") as outfile:
-                outfile.write(json_object)
-"""
-            return "File added"
+
 
         @self.app.route("/recognizers", methods=["GET"])
         def recognizers() -> Tuple[str, int]:

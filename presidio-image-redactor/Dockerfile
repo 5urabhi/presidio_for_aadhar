@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.8-slim
 
 ARG NAME
 ENV PIPENV_VENV_IN_PROJECT=1
@@ -11,11 +11,9 @@ RUN apt-get update \
   && tesseract -v
 
 COPY ./Pipfile* /usr/bin/${NAME}/
-
 RUN pip install pipenv \
-  && pipenv sync
-RUN pipenv install packaging
-RUN pipenv run python -m spacy download en_core_web_lg
+  && pipenv sync \
+  && pipenv run python -m spacy download en_core_web_lg
 
 COPY . /usr/bin/${NAME}/
 EXPOSE ${PORT}
